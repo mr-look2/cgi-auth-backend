@@ -1,21 +1,34 @@
 const express = require('express');
-const app = express();
-const port = process.env.PORT || 3000;
+const cors = require('cors');
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
 app.use(express.json());
 
-// Enkel test-route
-app.get('/', (req, res) => {
-    res.send('CGI Auth Backend is running!');
-});
-
-// Placeholder för autentisering
+// Simulerad login-endpoint
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    // Här skulle du anropa CGI:s API för autentisering
-    res.json({ message: 'Login endpoint hit', username });
+    const { serviceId, accessToken } = req.body;
+    
+    if (!serviceId || !accessToken) {
+        return res.status(400).json({ message: 'Missing credentials' });
+    }
+
+    // Validera mot testuppgifterna
+    const validCredentials = {
+        "cgitest001": "01010101-0101-0101-0101-010101010101",
+        "cgitest002": "02020202-0202-0202-0202-020202020202",
+        "cgitest003": "03030303-0303-0303-0303-030303030303"
+    };
+
+    if (validCredentials[serviceId] === accessToken) {
+        return res.json({ message: 'Login successful!' });
+    }
+
+    return res.status(401).json({ message: 'Invalid credentials' });
 });
 
-app.listen(port, () => {
-    console.log(`Backend server is running on port ${port}`);
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
